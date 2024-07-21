@@ -1,0 +1,71 @@
+import random
+from sympy import isprime
+from math import gcd
+
+
+class RSA:
+    def __init__(self, bit_length=128):
+        self.bit_length = bit_length
+        self.p = self.generate_prime()
+        self.q = self.generate_prime()
+        while self.q == self.p:
+            self.q = self.generate_prime()
+
+        self.n = self.p * self.q
+        self.phi_n = (self.p - 1) * (self.q - 1)
+        self.e = self.generate_e(self.phi_n)
+        self.d = self.modinv(self.e, self.phi_n)
+
+        self.public_key = (self.e, self.n)
+        self.private_key = (self.d, self.n)
+
+    def generate_prime(self):
+        while True:
+            num = random.getrandbits(self.bit_length)
+            if isprime(num):
+                return num
+
+    def generate_e(self, phi_n):
+        while True:
+            e = random.randrange(2, phi_n)
+            if gcd(e, phi_n) == 1:
+                return e
+
+    def modinv(self, a, m):
+        m0, x0, x1 = m, 0, 1
+        if m == 1:
+            return 0
+        while a > 1:
+            q = a // m
+            m, a = a % m, m
+            x0, x1 = x1 - q * x0, x0
+        if x1 < 0:
+            x1 += m0
+        return x1
+
+    def encrypt(self, message):
+        m = int.from_bytes(message.encode('utf-8'), 'big')
+        c = pow(m, self.e, self.n)
+        return c
+
+    def decrypt(self, ciphertext):
+        m = pow(ciphertext, self.d, self.n)
+        message_length = (m.bit_length() + 7) // 8
+        message = m.to_bytes(message_length, 'big').decode('utf-8', errors='ignore')
+        return message
+
+
+# Example usage
+rsa = RSA(bit_length=128)  # 128-bit primes for more robust testing
+
+print(f"Public Key: {rsa.public_key}")
+print(f"Private Key: {rsa.private_key}")
+
+message = "Hello RSA!"
+print(f"Original Message: {message}")
+
+ciphertext = rsa.encrypt(message)
+print(f"Encrypted Message: {ciphertext}")
+
+decrypted_message = rsa.decrypt(ciphertext)
+print(f"Decrypted Message: {decrypted_message}")
