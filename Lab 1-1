@@ -1,0 +1,21 @@
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Random;
+
+public class PrimeKeyGenerator {
+
+    public static void main(String[] args) {
+        int bitLength = 512; // Define the bit length for the prime numbers
+        SecureRandom random = new SecureRandom();
+
+        BigInteger p = generatePrime(bitLength, random);
+        BigInteger q = generatePrime(bitLength, random);
+
+        System.out.println("Generated Prime p: " + p);
+        System.out.println("Generated Prime q: " + q);
+    }
+
+    private static BigInteger generatePrime(int bitLength, Random random) {
+        return BigInteger.probablePrime(bitLength, random);
+    }
+}
