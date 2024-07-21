@@ -1,0 +1,45 @@
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Random;
+
+public class PrimeEulerFunction {
+
+    public static void main(String[] args) {
+        int bitLength = 512; // Define the bit length for the prime numbers
+        SecureRandom random = new SecureRandom();
+
+        BigInteger p = generatePrime(bitLength, random);
+
+        System.out.println("Generated Prime p: " + p);
+        System.out.println("Euler's Totient Function Φ(p) = " + eulerTotient(p));
+    }
+
+    private static BigInteger generatePrime(int bitLength, Random random) {
+        return BigInteger.probablePrime(bitLength, random);
+    }
+
+    private static BigInteger eulerTotient(BigInteger n) {
+        if (n.equals(BigInteger.ONE)) {
+            return BigInteger.ONE;
+        }
+
+        BigInteger result = n;
+        BigInteger i = BigInteger.TWO;
+
+        while (i.multiply(i).compareTo(n) <= 0) {
+            if (n.mod(i).equals(BigInteger.ZERO)) {
+                while (n.mod(i).equals(BigInteger.ZERO)) {
+                    n = n.divide(i);
+                }
+                result = result.subtract(result.divide(i));
+            }
+            i = i.add(BigInteger.ONE);
+        }
+
+        if (n.compareTo(BigInteger.ONE) > 0) {
+            result = result.subtract(result.divide(n));
+        }
+
+        return result;
+    }
+}
